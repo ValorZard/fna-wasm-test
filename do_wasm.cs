@@ -26,9 +26,13 @@ foreach (String arg in args)
         case "serve":
             doServe = true;
             break;
+        case "clean":
+            doClean = true;
+            break;
     }
 }
 
+Console.WriteLine("Starting FNA Wasm setup...");
 
 if (doClean)
 {
