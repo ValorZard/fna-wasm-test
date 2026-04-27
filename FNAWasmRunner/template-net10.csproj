@@ -32,10 +32,10 @@
 
 	<ItemGroup>
 		<!-- FNA -->
-		<NativeFileReference Include="statics/SDL3.a" />
-		<NativeFileReference Include="statics/FNA3D.a" />
-		<NativeFileReference Include="statics/libmojoshader.a" />
-		<NativeFileReference Include="statics/FAudio.a" />
+		<NativeFileReference Include="statics/libSDL3.a" />
+		<NativeFileReference Include="statics/libFNA3D.a" />
+		<!-- <NativeFileReference Include="statics/libmojoshader.a" /> -->
+		<NativeFileReference Include="statics/libFAudio.a" />
 
 		<!-- WASMFS -->
 		<NativeFileReference Include="Emscripten.c" />

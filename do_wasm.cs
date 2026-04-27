@@ -5,6 +5,58 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Net;
 
+static void ForceDeleteDirectory(string path)
+{
+    // On windows, it's a bit annoying to delete directories containing read-only files, 
+    // so we have to make sure to clear the read-only flag on all files before deleting.
+    if (!Directory.Exists(path)) return;
+    foreach (var f in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+        File.SetAttributes(f, FileAttributes.Normal);
+    Directory.Delete(path, true);
+}
+
+// get args flags for the script
+bool doClean = false;
+bool doServe = false;
+foreach (String arg in args)
+{
+    switch (arg)
+    {
+        case "serve":
+            doServe = true;
+            break;
+    }
+}
+
+
+if (doClean)
+{
+    Console.WriteLine("Cleaning up...");
+    ForceDeleteDirectory("FNAWasm");
+    Console.WriteLine("Finished cleaning up");
+}
+
+String branch = "26.04";
+var wasmClone = new Process();
+wasmClone.StartInfo.FileName = "git";
+wasmClone.StartInfo.Arguments = $"clone https://github.com/FNA-XNA/FNA --recursive -b {branch} FNAWasm";
+wasmClone.Start();
+wasmClone.WaitForExit();
+Console.WriteLine("Finished cloning FNA");
+Console.WriteLine("Now applying patches...");
+var wasmPatch = new Process
+{
+    StartInfo = new ProcessStartInfo
+    {
+        FileName = "git",
+        Arguments = "apply ../FNAWasm.patch",
+        WorkingDirectory = "FNAWasm",
+    }
+};
+wasmPatch.Start();
+wasmPatch.WaitForExit();
+Console.WriteLine("Finished applying patches");
+
 static void PatchFile(string filePath, string oldText, string newText)
 {
     var content = File.ReadAllText(filePath);
@@ -18,91 +70,6 @@ static void PatchFile(string filePath, string oldText, string newText)
     File.WriteAllText(filePath, content);
     Console.WriteLine($"Patched {Path.GetFileName(filePath)}");
 }
-
-static async Task CopyBinaries()
-{
-    Console.WriteLine("Now copying files from FNA-WASM-Build...");
-    if (Directory.Exists("FNAWasmRunner\\statics"))
-    {
-        Directory.Delete("FNAWasmRunner\\statics", true);
-    }
-    try
-    {
-        Directory.CreateDirectory("FNAWasmRunner\\statics");
-        using var client = new HttpClient();
-
-        string staticsRelease = "07f3bc2e-5f6a-4f67-abac-b1fd06590148";
-
-        string baseUrl = $"https://github.com/r58Playz/FNA-WASM-Build/releases/download/{staticsRelease}";
-        string outputDir = "FNAWasmRunner\\statics";
-
-        string[] files =
-        [
-            "FAudio.a",
-        "FNA3D.a",
-        "libmojoshader.a",
-        "SDL3.a"
-        ];
-
-        foreach (string file in files)
-        {
-            string sourceUrl = $"{baseUrl}/{file}";
-            string destinationPath = Path.Combine(outputDir, file);
-
-            Console.WriteLine($"Downloading {file}...");
-            using HttpResponseMessage response = await client.GetAsync(sourceUrl, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            await using Stream source = await response.Content.ReadAsStreamAsync();
-            await using FileStream destination = File.Create(destinationPath);
-            await source.CopyToAsync(destination);
-        }
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine($"Error copying files: {e}");
-    }
-}
-
-// get args flags for the script
-bool doServe = false;
-bool doClean = false;
-foreach (String arg in args)
-{
-    switch (arg)
-    {
-        case "serve":
-            doServe = true;
-            break;
-        case "clean":
-            doClean = true;
-            break;
-    }
-}
-
-if (doClean)
-{
-    Console.WriteLine("Cleaning project...");
-    var cleanProcess = new Process
-    {
-        StartInfo = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "clean -c Release -v d",
-            WorkingDirectory = "FNAWasmRunner",
-        }
-    };
-    cleanProcess.Start();
-    cleanProcess.WaitForExit();
-    Console.WriteLine("Finished cleaning project");
-}
-
-// Copy the latest binaries from the releases of FNA-WASM-Build
-if (doClean || !Directory.Exists("FNAWasmRunner\\statics") || !Directory.GetFiles("FNAWasmRunner\\statics").Any())
-{
-    await CopyBinaries();
-}
-
 // Publish the project to get the latest framework files
 var publishProcess = new Process
 {

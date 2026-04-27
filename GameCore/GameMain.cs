@@ -1,5 +1,4 @@
-﻿using FontStashSharp;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -33,7 +32,6 @@ public class GameMain : Game
     private SoundEffect sound;
     private KeyboardState keyboardPrev = new KeyboardState();
     private Song song;
-    private FontSystem _fontSystem;
     private FrameCounter _frameCounter = new FrameCounter();
     
     protected override void Initialize()
@@ -52,8 +50,6 @@ public class GameMain : Game
         texture = Content.Load<Texture2D>("images/popsicle");
         sound = Content.Load<SoundEffect>("sounds/sfx_jump");
         song = Content.Load<Song>("songs/The_Entertainer_-_Scott_Joplin");
-        _fontSystem = new FontSystem();
-        _fontSystem.AddFont(File.ReadAllBytes(@"Content/fonts/DroidSans.ttf"));
         base.LoadContent();
     }
 
@@ -112,16 +108,6 @@ public class GameMain : Game
          // Draw the texture to the corner of the screen
         batch.Begin();
         batch.Draw(texture, new Rectangle(100, 100, texture.Width / 5, texture.Height / 5), Color.White);
-        SpriteFontBase font18 = _fontSystem.GetFont(18);
-        var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        _frameCounter.Update(deltaTime);
-
-        var fpsString = $"FPS: {_frameCounter.AverageFramesPerSecond}";
-
-        batch.DrawString(font18, fpsString, new Vector2(1, 1), Color.Black);
-        SpriteFontBase font30 = _fontSystem.GetFont(30);
-        batch.DrawString(font30, "The quick brown fox\njumps over\nthe lazy dog", new Vector2(0, 80), Color.Yellow);
-
         batch.End();
         base.Draw(gameTime);
     }
