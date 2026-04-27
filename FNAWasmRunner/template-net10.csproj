@@ -34,7 +34,7 @@
 		<!-- FNA -->
 		<NativeFileReference Include="statics/SDL3.a" />
 		<NativeFileReference Include="statics/FNA3D.a" />
-		<!-- <NativeFileReference Include="statics/libmojoshader.a" /> -->
+		<NativeFileReference Include="statics/libmojoshader.a" />
 		<NativeFileReference Include="statics/FAudio.a" />
 
 		<!-- WASMFS -->
