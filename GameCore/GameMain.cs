@@ -32,7 +32,6 @@ public class GameMain : Game
     private SoundEffect sound;
     private KeyboardState keyboardPrev = new KeyboardState();
     private Song song;
-    private FrameCounter _frameCounter = new FrameCounter();
     
     protected override void Initialize()
     {

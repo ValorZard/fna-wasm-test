@@ -4,6 +4,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Net;
+using System.Threading.Tasks;
 
 static void ForceDeleteDirectory(string path)
 {

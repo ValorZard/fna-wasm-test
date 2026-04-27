@@ -47,7 +47,7 @@
 		<Compile Remove="..\FNAWasm\**" />
 		<Content Remove="..\FNAWasm\**" />
 		<EmbeddedResource Remove="..\FNAWasm\**" />
-		<ProjectReference Include="..\GameCore\GameCore.csproj" Properties="FNAVariant=Wasm" />
+		<ProjectReference Include="..\GameCore\GameCore.csproj" />
 	</ItemGroup>
 </Project>
 
