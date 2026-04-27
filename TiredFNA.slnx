@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Native/">
+    <Project Path="FNANative/FNA.Core.csproj" />
+    <Project Path="FNANativeRunner/FNANativeRunner.csproj" />
+  </Folder>
+  <Folder Name="/Wasm/">
+    <Project Path="FNAWasm/FNA.Core.csproj" />
+    <Project Path="FNAWasmRunner/template-net10.csproj" />
+  </Folder>
+  <Project Path="FontStashSharp/src/XNA/FontStashSharp.FNA.Core.csproj" />
+  <Project Path="GameCore/GameCore.csproj" />
+</Solution>

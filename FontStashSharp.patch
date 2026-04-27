@@ -1,0 +1,27 @@
+diff --git a/src/XNA/FontStashSharp.FNA.Core.csproj b/src/XNA/FontStashSharp.FNA.Core.csproj
+index 5e70e3a..0e9c463 100644
+--- a/src/XNA/FontStashSharp.FNA.Core.csproj
++++ b/src/XNA/FontStashSharp.FNA.Core.csproj
+@@ -18,9 +18,18 @@
+   <ItemGroup>
+     <Compile Include="..\FontStashSharp\**\*.cs" LinkBase="FontStashSharp" />
+     <Compile Remove="..\FontStashSharp\obj\**\*.cs" LinkBase="FontStashSharp" />
+-  </ItemGroup>  
+-
+-  <ItemGroup>
+-    <ProjectReference Include="..\..\..\FNA\FNA.Core.csproj" />
+   </ItemGroup>
++
++    <PropertyGroup>
++        <!-- Default to Native variant if not specified -->
++        <FNAVariant Condition="'$(FNAVariant)' == ''">Native</FNAVariant>
++    </PropertyGroup>
++
++    <ItemGroup Condition="'$(FNAVariant)' == 'Native'">
++        <ProjectReference Include="..\..\..\FNANative\FNA.Core.csproj" />
++    </ItemGroup>
++
++    <ItemGroup Condition="'$(FNAVariant)' == 'Wasm'">
++        <ProjectReference Include="..\..\..\FNAWasm\FNA.Core.csproj" />
++    </ItemGroup>
+ </Project>

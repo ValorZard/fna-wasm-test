@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>GameCore</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <!-- Default to Native variant if not specified -->
+      <FNAVariant Condition="'$(FNAVariant)' == ''">Native</FNAVariant>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(FNAVariant)' == 'Native'">
+      <ProjectReference Include="..\FNANative\FNA.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(FNAVariant)' == 'Wasm'">
+      <ProjectReference Include="..\FNAWasm\FNA.Core.csproj" />
+    </ItemGroup>
+
+    <!-- We import all of our dependencies here, and pass through the FNAVariant property -->
+    <!-- This lets the dependencies know which variant of FNA to use at compile time -->
+    <ItemGroup>
+      <ProjectReference Include="..\FontStashSharp\src\XNA\FontStashSharp.FNA.Core.csproj" Properties="FNAVariant=$(FNAVariant)" />
+    </ItemGroup>
+    
+    
+</Project>
