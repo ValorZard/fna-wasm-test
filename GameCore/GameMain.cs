@@ -1,113 +1,132 @@
-﻿using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
+﻿/* VideoPlayer DynamicSoundEffectInstance Reverb/Filter Test Program
+ * Written by Ethan "flibitijibibo" Lee
+ * http://www.flibitijibibo.com/
+ *
+ * Released under public domain.
+ * No warranty implied; use at your own risk.
+ */
+
+using System;
+using System.Reflection;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameCore;
-using Microsoft.Xna.Framework;
 public class GameMain : Game
 {
-    public GameMain()
-    {
-        GraphicsDeviceManager gdm = new GraphicsDeviceManager(this);
+	static void Main(string[] args)
+	{
+		using (GameMain p = new GameMain())
+		{
+			p.Run();
+		}
+	}
 
-        // Typically you would load a config here...
-        gdm.PreferredBackBufferWidth = 512;
-        gdm.PreferredBackBufferHeight = 512;
-        gdm.IsFullScreen = false;
-        gdm.SynchronizeWithVerticalRetrace = true;
+	GraphicsDeviceManager gdm;
+	Texture2D solid;
+	SpriteBatch sb;
+	VideoPlayer vp;
+	Video v;
+
+	FieldInfo sfi;
+	MethodInfo applyReverb;
+	MethodInfo applyFilter;
+	float filter, reverb;
+
+	public GameMain() : base()
+	{
+		gdm = new GraphicsDeviceManager(this);
+
+		sfi = typeof(VideoPlayer).GetField(
+			"audioStream",
+			BindingFlags.Instance | BindingFlags.NonPublic
+		);
+		applyReverb = typeof(DynamicSoundEffectInstance).GetMethod(
+			"INTERNAL_applyReverb",
+			BindingFlags.Instance | BindingFlags.NonPublic
+		);
+		applyFilter = typeof(DynamicSoundEffectInstance).GetMethod(
+			"INTERNAL_applyLowPassFilter",
+			BindingFlags.Instance | BindingFlags.NonPublic
+		);
 
         // All content loaded will be in a "Content" folder
         Content.RootDirectory = "Content";
-    }
+	}
 
-    byte r = 0;
-    byte g = 0;
-    byte b = 0;
-    DateTime lastUpdate = DateTime.UnixEpoch;
-    int updateCount = 0;
-    private SpriteBatch batch;
-    
-    private Texture2D texture;
-    private SoundEffect sound;
-    private KeyboardState keyboardPrev = new KeyboardState();
-    private Song song;
-    
-    protected override void Initialize()
-    {
-        /* This is a nice place to start up the engine, after
-         * loading configuration stuff in the constructor
-         */
-        base.Initialize();
-    }
+	protected override void LoadContent()
+	{
+		sb = new SpriteBatch(GraphicsDevice);
+		solid = new Texture2D(GraphicsDevice, 1, 1);
+		solid.SetData(new Color[] { Color.White });
+		vp = new VideoPlayer();
+        // video taken from: https://commons.wikimedia.org/wiki/File:%22Amsterdam_Diamantstad%22_Weeknummer_57-27_-_Open_Beelden_-_44071.ogv
+		v = Content.Load<Video>("videos/test_video");
+		gdm.PreferredBackBufferWidth = v.Width;
+		gdm.PreferredBackBufferHeight = v.Height;
+		gdm.ApplyChanges();
 
-    protected override void LoadContent()
-    {
-        // Load textures, sounds, and so on in here...
-        // Create the batch...
-        batch = new SpriteBatch(GraphicsDevice);
-        texture = Content.Load<Texture2D>("images/popsicle");
-        sound = Content.Load<SoundEffect>("sounds/sfx_jump");
-        song = Content.Load<Song>("songs/The_Entertainer_-_Scott_Joplin");
-        base.LoadContent();
-    }
+		vp.Play(v);
+	}
 
-    protected override void UnloadContent()
-    {
-        // Clean up after yourself!
-        batch.Dispose();
-        texture.Dispose();
-        sound.Dispose();
-        song.Dispose();
-        base.UnloadContent();
-    }
+	protected override void UnloadContent()
+	{
+		sb.Dispose();
+		solid.Dispose();
+		vp.Dispose();
+		v = null;
+	}
 
-    protected override void Update(GameTime gameTime)
-    {
-        // Run game logic in here. Do NOT render anything here!
-        base.Update(gameTime);
-        updateCount++;
-        DateTime now = DateTime.UtcNow;
-        if ((now - lastUpdate).TotalSeconds > 1.0)
-        {
-            Console.WriteLine($"Main loop still running at: {now}; {Math.Round(updateCount / (now - lastUpdate).TotalSeconds, MidpointRounding.AwayFromZero)} UPS");
-            lastUpdate = now;
-            updateCount = 0;
-        }
-        KeyboardState keyboardCur = Keyboard.GetState();
+	protected override void Update(GameTime gameTime)
+	{
+		GamePadState gp = GamePad.GetState(PlayerIndex.One);
+		if (	gp.IsButtonDown(Buttons.Start) ||
+			vp.State == MediaState.Stopped	)
+		{
+			Exit();
+			return;
+		}
 
-        if (keyboardCur.IsKeyDown(Keys.Space) && keyboardPrev.IsKeyUp(Keys.Space))
-        {
-            sound.Play();
-        }
+		reverb = gp.Triggers.Left;
+		filter = gp.Triggers.Right;
 
-        keyboardPrev = keyboardCur;
+		object stream = sfi.GetValue(vp);
+		if (stream != null)
+		{
+			applyReverb.Invoke(stream, new object[] { reverb });
+			applyFilter.Invoke(stream, new object[]
+			{
+				Math.Max(1.0f - filter, 0.1f)
+			});
+		}
 
-        // loop colors
-        r++;
-        if (r == 255) { r = 0;}
-        g++;
-        if (g == 255) { g = 0;}
-        b++;
-        if (b == 255) { b = 0;}
-        
-        // music 
-        // Just keep playing the song over and over
-        if (MediaPlayer.State == MediaState.Stopped)
-        {
-            MediaPlayer.Play(song);
-        }
-        
-    }
+		base.Update(gameTime);
+	}
 
-    protected override void Draw(GameTime gameTime)
-    {
-        // Render stuff in here. Do NOT run game logic in here!
-        GraphicsDevice.Clear(new Color(r, g, b));
-         // Draw the texture to the corner of the screen
-        batch.Begin();
-        batch.Draw(texture, new Rectangle(100, 100, texture.Width / 5, texture.Height / 5), Color.White);
-        batch.End();
-        base.Draw(gameTime);
-    }
+	protected override void Draw(GameTime gameTime)
+	{
+		sb.Begin(SpriteSortMode.Deferred, BlendState.Opaque);
+		sb.Draw(vp.GetTexture(), Vector2.Zero, Color.White);
+		sb.Draw(
+			solid,
+			new Rectangle(
+				0, 0,
+				50, (int) (v.Height * reverb)
+			),
+			Color.Red
+		);
+		sb.Draw(
+			solid,
+			new Rectangle(
+				v.Width - 50, 0,
+				50, (int) (v.Height * filter)
+			),
+			Color.Blue
+		);
+		sb.End();
+		base.Draw(gameTime);
+	}
 }

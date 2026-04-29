@@ -167,6 +167,7 @@ if (doServe)
         ".gif" => "image/gif",
         ".svg" => "image/svg+xml",
         ".ico" => "image/x-icon",
+        ".ogv" => "video/ogg",
         _ => "application/octet-stream"
     };
 
