@@ -83,13 +83,14 @@ public class GameMain : Game
 	protected override void Update(GameTime gameTime)
 	{
 		GamePadState gp = GamePad.GetState(PlayerIndex.One);
-		if (	gp.IsButtonDown(Buttons.Start) ||
-			vp.State == MediaState.Stopped	)
+		if (gp.IsButtonDown(Buttons.Start) || vp.State == MediaState.Stopped)
 		{
 			Exit();
 			return;
 		}
 
+		// The following code is broken on WASM since it requires C# reflection to work
+		/*
 		reverb = gp.Triggers.Left;
 		filter = gp.Triggers.Right;
 
@@ -102,6 +103,7 @@ public class GameMain : Game
 				Math.Max(1.0f - filter, 0.1f)
 			});
 		}
+		*/
 
 		base.Update(gameTime);
 	}
