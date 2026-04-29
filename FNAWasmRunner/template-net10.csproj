@@ -20,11 +20,15 @@
 
 		<WasmAllowUndefinedSymbols>true</WasmAllowUndefinedSymbols>
 		<WasmBitcodeCompileOptimizationFlag>-O3</WasmBitcodeCompileOptimizationFlag>
-		<WasmNativeStrip>true</WasmNativeStrip>
 		<WasmStripILAfterAOT>true</WasmStripILAfterAOT>
-		<WasmNativeDebugSymbols>false</WasmNativeDebugSymbols>
+		<!-- Debugging specific settings -->
+		<WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+  		<WasmNativeStrip>false</WasmNativeStrip>
 
-		<EmccExtraLDFlags>-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2 -sFULL_ES3 -sWASMFS -sOFFSCREENCANVAS_SUPPORT</EmccExtraLDFlags>
+		<!-- Had to add a flag for offscreen framebuffer support, see -->
+		<!-- https://github.com/emscripten-core/emscripten/issues/9320 -->
+		<!-- https://emscripten.org/docs/api_reference/html5.h.html#c.EmscriptenWebGLContextAttributes.renderViaOffscreenBackBuffer -->
+		<EmccExtraLDFlags>-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2 -sFULL_ES3 -sWASMFS -sOFFSCREENCANVAS_SUPPORT -sOFFSCREEN_FRAMEBUFFER</EmccExtraLDFlags>
 		<EmccLinkOptimizationFlag>-O3</EmccLinkOptimizationFlag>
 		<EmccCompileOptimizationFlag>-O3</EmccCompileOptimizationFlag>
 		<EmccEnvironment>web,worker</EmccEnvironment>
@@ -36,6 +40,7 @@
 		<NativeFileReference Include="statics/FNA3D.a" />
 		<NativeFileReference Include="statics/libmojoshader.a" />
 		<NativeFileReference Include="statics/FAudio.a" />
+		<NativeFileReference Include="statics/libtheorafile.a" />
 
 		<!-- WASMFS -->
 		<NativeFileReference Include="Emscripten.c" />
