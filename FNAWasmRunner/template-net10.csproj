@@ -20,9 +20,10 @@
 
 		<WasmAllowUndefinedSymbols>true</WasmAllowUndefinedSymbols>
 		<WasmBitcodeCompileOptimizationFlag>-O3</WasmBitcodeCompileOptimizationFlag>
-		<WasmNativeStrip>true</WasmNativeStrip>
 		<WasmStripILAfterAOT>true</WasmStripILAfterAOT>
-		<WasmNativeDebugSymbols>false</WasmNativeDebugSymbols>
+		<!-- Debugging specific settings -->
+		<WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+  		<WasmNativeStrip>false</WasmNativeStrip>
 
 		<!-- Had to add a flag for offscreen framebuffer support, see -->
 		<!-- https://github.com/emscripten-core/emscripten/issues/9320 -->
